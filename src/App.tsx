@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
+import Lenis from 'lenis'
 import {
   ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Check, ChevronDown,
   ArrowLeftRight, BadgeCheck, ChartNoAxesCombined, CircleDollarSign, ClipboardCheck,
@@ -148,11 +149,73 @@ function App() {
   const solutionTrackRef = useRef<HTMLDivElement>(null)
   const solutionRailProgressRef = useRef<HTMLSpanElement>(null)
   const solutionRailHeadRef = useRef<HTMLSpanElement>(null)
+  const lenisRef = useRef<Lenis | null>(null)
   const [activeSolution, setActiveSolution] = useState(0)
   const frame = liveFrames[liveFrame]
   const activeCapabilityData = capabilities[activeCapability]
   const ActiveCapabilityIcon = activeCapabilityData.icon
   const activeStep = activityIndex === 0 ? 0 : activityIndex === 1 ? 1 : activityIndex < 4 ? 2 : 3
+
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: 'vertical',
+      gestureOrientation: 'vertical',
+      smoothWheel: true,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
+      infinite: false,
+    })
+
+    lenisRef.current = lenis
+    ;(window as unknown as { lenis: Lenis }).lenis = lenis
+
+    let rafId: number
+    function raf(time: number) {
+      lenis.raf(time)
+      rafId = requestAnimationFrame(raf)
+    }
+    rafId = requestAnimationFrame(raf)
+
+    const handleAnchorClick = (e: MouseEvent) => {
+      const anchor = (e.target as HTMLElement).closest('a')
+      if (!anchor) return
+      const href = anchor.getAttribute('href')
+      if (href && href.startsWith('#')) {
+        e.preventDefault()
+        setMenuOpen(false)
+        if (href === '#top' || href === '#') {
+          lenis.scrollTo(0, { duration: 1.2 })
+        } else {
+          const target = document.querySelector(href)
+          if (target) {
+            lenis.scrollTo(target as HTMLElement, { offset: -70, duration: 1.2 })
+          }
+        }
+      }
+    }
+    document.addEventListener('click', handleAnchorClick)
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      document.removeEventListener('click', handleAnchorClick)
+      lenis.destroy()
+      lenisRef.current = null
+      delete (window as unknown as { lenis?: Lenis }).lenis
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!lenisRef.current) return
+    if (modalOpen || legalDocument) {
+      lenisRef.current.stop()
+    } else {
+      lenisRef.current.start()
+    }
+  }, [modalOpen, legalDocument])
 
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -264,7 +327,12 @@ function App() {
     if (!marker || !currentMarker) return
     const markerCenter = marker.getBoundingClientRect().left + marker.offsetWidth / 2
     const currentCenter = currentMarker.getBoundingClientRect().left + currentMarker.offsetWidth / 2
-    window.scrollBy({ top: markerCenter - currentCenter, behavior: 'smooth' })
+    const delta = markerCenter - currentCenter
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(window.scrollY + delta, { duration: 0.9 })
+    } else {
+      window.scrollBy({ top: delta, behavior: 'smooth' })
+    }
   }
   useEffect(() => {
     const stage = solutionStageRef.current
