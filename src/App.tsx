@@ -523,14 +523,7 @@ function App() {
           <div className="comparison-ambient-glow" aria-hidden="true" />
           <div className="section-shell comparison-shell">
             <div className="comparison-header">
-              <span className="comparison-eyebrow">
-                <span className="eyebrow-pip" />
-                TWO SIDES OF ONE CLEAR PROCESS
-              </span>
               <h2>Let software prepare.<br /><span>Let professionals decide.</span></h2>
-              <p className="comparison-lead">
-                Software accelerates extraction, reconciliation and schedule drafting. Finance practitioners retain full context, discretionary judgement and final sign-off.
-              </p>
             </div>
 
             <div className="comparison-grid">
