@@ -7637,10 +7637,9 @@ select:focus-visible {
 }
 
 /* ==========================================================================
-   CENTER ALIGNMENT FOR SECTION HEADINGS (TOOLS, CAPABILITIES, WORKFLOW)
+   CENTER ALIGNMENT FOR SECTION HEADINGS (TOOLS, WORKFLOW)
    ========================================================================== */
 .tools-section .tools-heading,
-.capabilities-section .section-heading,
 .workflow-section .workflow-intro {
   display: flex !important;
   flex-direction: column !important;
@@ -7653,7 +7652,6 @@ select:focus-visible {
 }
 
 .tools-section .tools-heading>div,
-.capabilities-section .section-heading>div,
 .workflow-section .workflow-intro>div {
   display: flex !important;
   flex-direction: column !important;
@@ -7665,7 +7663,6 @@ select:focus-visible {
 }
 
 .tools-section .tools-heading h2,
-.capabilities-section .section-heading h2,
 .workflow-section .workflow-intro h2 {
   text-align: center !important;
   margin-inline: auto !important;
@@ -7674,7 +7671,6 @@ select:focus-visible {
 }
 
 .tools-section .tools-heading h2 span,
-.capabilities-section .section-heading h2 span,
 .workflow-section .workflow-intro h2 em {
   display: inline-block !important;
   text-align: center !important;

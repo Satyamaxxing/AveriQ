@@ -25,14 +25,6 @@ const tools = [
   ['RC', 'Reconciliation', 'Match records and surface differences for professional review.'],
 ]
 
-const capabilities = [
-  { icon: FileSearch, title: 'Read documents', text: 'Extract figures and details from invoices, purchase orders, contracts and statements.', label: 'SOURCE DETAILS', sample: 'Purchase order · PO-1048', detail: 'Supplier · Amount · Date · Line items', result: 'Details prepared for checking' },
-  { icon: Scale, title: 'Compare and match', text: 'Check documents against ledgers, or compare quotes and supporting records.', label: 'MATCH REVIEW', sample: 'Invoice total · AED 5,600', detail: 'Ledger total · AED 5,360', result: 'AED 240 difference to review' },
-  { icon: ShieldCheck, title: 'Check against rules', text: 'Surface missing items, mismatched totals, duplicates and values outside agreed limits.', label: 'RULE VALIDATION', sample: 'Required fields · Complete', detail: 'Duplicate check · No match found', result: 'One variance flagged for review' },
-  { icon: FileCheck2, title: 'Prepare draft work', text: 'Assemble schedules, working papers and reports as drafts for a professional to review.', label: 'WORKING PAPER', sample: 'Expense review · April', detail: 'Evidence · Checks · Exceptions', result: 'Draft ready for professional review' },
-  { icon: Files, title: 'Handle bulk work', text: 'Process hundreds of documents in one batch while keeping exceptions visible.', label: 'BATCH OVERVIEW', sample: 'Documents received', detail: 'Grouped · Extracted · Checked', result: 'Batch summary prepared for review' },
-]
-
 const steps = [
   { number: '01', title: 'Bring documents together', text: 'Invoices, orders, contracts and statements enter one organised workflow.', icon: Files },
   { number: '02', title: 'Extract and compare', text: 'Key details are read, matched against records and checked against agreed rules.', icon: FileSearch },
@@ -140,7 +132,6 @@ function App() {
   const [submitted, setSubmitted] = useState(false)
   const [liveFrame, setLiveFrame] = useState(0)
   const [activityIndex, setActivityIndex] = useState(0)
-  const [activeCapability, setActiveCapability] = useState(0)
   const [openFaq, setOpenFaq] = useState<number | null>(0)
   const [demoLoading, setDemoLoading] = useState(false)
   const [headerScrolled, setHeaderScrolled] = useState(false)
@@ -152,8 +143,6 @@ function App() {
   const lenisRef = useRef<Lenis | null>(null)
   const [activeSolution, setActiveSolution] = useState(0)
   const frame = liveFrames[liveFrame]
-  const activeCapabilityData = capabilities[activeCapability]
-  const ActiveCapabilityIcon = activeCapabilityData.icon
   const activeStep = activityIndex === 0 ? 0 : activityIndex === 1 ? 1 : activityIndex < 4 ? 2 : 3
 
   useEffect(() => {
@@ -234,7 +223,7 @@ function App() {
 
   useEffect(() => {
     const targets = document.querySelectorAll<HTMLElement>(
-      '.editorial-heading, .application-card, #solutions .section-heading, .solution-point-copy, .tools-heading, .tool-row, #capabilities .section-heading, .capability-choice, .capability-console, .workflow-intro, .workflow-step, .human-note, .comparison-section .section-heading, .comparison-card, .about-layout > *, .faq-heading, .faq-item, .cta-inner > *',
+      '.editorial-heading, .application-card, #solutions .section-heading, .solution-point-copy, .tools-heading, .tool-row, .workflow-intro, .workflow-step, .human-note, .comparison-section .section-heading, .comparison-card, .about-layout > *, .faq-heading, .faq-item, .cta-inner > *',
     )
     if (!('IntersectionObserver' in window)) return
     targets.forEach((target) => target.classList.add('scroll-reveal'))
@@ -440,7 +429,6 @@ function App() {
             <a href="#applications">Workflows</a>
             <a href="#solutions">Solutions</a>
             <a href="#tools">Tools</a>
-            <a href="#capabilities">Capabilities</a>
             <a href="#approach">How it works</a>
             <a href="#faq">FAQ</a>
             <a href="#about">About</a>
@@ -448,7 +436,7 @@ function App() {
           </nav>
         </div>
       </header>
-      {menuOpen && <div className={`mobile-menu-backdrop ${menuClosing ? 'is-closing' : ''}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeMenu() }}><nav className="mobile-menu-panel" aria-label="Mobile navigation"><div className="mobile-menu-head"><a className="brand" href="#top" onClick={closeMenu} aria-label="AVERIQ home"><img src="/averiq-logo.png" alt="AVERIQ" /></a><button onClick={closeMenu} aria-label="Close navigation"><X size={21} /></button></div><div className="mobile-menu-links"><a href="#applications" onClick={closeMenu}>Workflows</a><a href="#solutions" onClick={closeMenu}>Solutions</a><a href="#tools" onClick={closeMenu}>Tools</a><a href="#capabilities" onClick={closeMenu}>Capabilities</a><a href="#approach" onClick={closeMenu}>How it works</a><a href="#faq" onClick={closeMenu}>FAQ</a><a href="#about" onClick={closeMenu}>About</a></div><button className="button button-dark mobile-menu-cta" onClick={openDemo}>Talk to us <ArrowUpRight size={16} /></button></nav></div>}
+      {menuOpen && <div className={`mobile-menu-backdrop ${menuClosing ? 'is-closing' : ''}`} onMouseDown={(event) => { if (event.target === event.currentTarget) closeMenu() }}><nav className="mobile-menu-panel" aria-label="Mobile navigation"><div className="mobile-menu-head"><a className="brand" href="#top" onClick={closeMenu} aria-label="AVERIQ home"><img src="/averiq-logo.png" alt="AVERIQ" /></a><button onClick={closeMenu} aria-label="Close navigation"><X size={21} /></button></div><div className="mobile-menu-links"><a href="#applications" onClick={closeMenu}>Workflows</a><a href="#solutions" onClick={closeMenu}>Solutions</a><a href="#tools" onClick={closeMenu}>Tools</a><a href="#approach" onClick={closeMenu}>How it works</a><a href="#faq" onClick={closeMenu}>FAQ</a><a href="#about" onClick={closeMenu}>About</a></div><button className="button button-dark mobile-menu-cta" onClick={openDemo}>Talk to us <ArrowUpRight size={16} /></button></nav></div>}
 
       <main id="top">
         <section className="hero section-shell">
@@ -515,8 +503,6 @@ function App() {
         <section className="section tools-section" id="tools"><div className="section-shell"><div className="section-heading tools-heading"><div><h2>Focused help for<br /><span>specific tasks.</span></h2></div></div>
           <div className="tools-grid">{tools.map(([abbr, title, text], i) => <article className="tool-row" key={title}><span className={`tool-mark mark-${i + 1}`}>{abbr}</span><div><h3>{title}</h3><p>{text}</p></div><ArrowUpRight className="tool-arrow" size={17} /></article>)}</div>
         </div></section>
-
-        <section className="section capabilities-section" id="capabilities"><div className="section-shell"><div className="section-heading"><div><h2>Every detail,<br /><span>ready for review.</span></h2></div></div><div className="capability-layout"><div className="capability-list" role="group" aria-label="Explore technology capabilities">{capabilities.map(({ icon: Icon, title }, index) => <button type="button" className={`capability-choice ${activeCapability === index ? 'is-active' : ''}`} aria-pressed={activeCapability === index} onClick={() => setActiveCapability(index)} key={title}><span className="cap-number">0{index + 1}</span><Icon size={17} /><span>{title}</span><ArrowRight size={14} /></button>)}</div><article className="capability-console" aria-live="polite"><div className="console-head"><span className="console-lights"><i /><i /><i /></span><span>{activeCapabilityData.label}</span><span className="sample-chip">ILLUSTRATIVE SAMPLE</span></div><div className="console-body"><div className="console-title"><span className="console-icon"><ActiveCapabilityIcon size={19} /></span><div><span className="micro-label">CAPABILITY {String(activeCapability + 1).padStart(2, '0')} / 05</span><h3>{activeCapabilityData.title}</h3></div></div><p className="console-description">{activeCapabilityData.text}</p><div className="capability-flow"><div className="flow-card"><span className="flow-label">{activeCapabilityData.label}</span><b>{activeCapabilityData.sample}</b><small>{activeCapabilityData.detail}</small></div><span className="flow-arrow"><ArrowRight size={17} /></span><div className="flow-result"><span className="result-check"><Check size={14} /></span><b>{activeCapabilityData.result}</b></div></div><div className="console-foot"><span><span className="tiny-green" /> Drafting remains subject to professional review</span><span>Sample only</span></div></div></article></div></div></section>
 
         <section className="workflow-section" id="approach"><div className="section-shell"><div className="workflow-intro"><div><h2>From documents<br />to <em>decisions.</em></h2></div></div>
           <nav className="workflow-index" aria-label="Workflow stages">{steps.map(({ number, title }, index) => <a href={`#workflow-${number}`} className={activeStep === index ? 'is-active' : ''} key={number}><span>{number}</span>{title}</a>)}</nav>
