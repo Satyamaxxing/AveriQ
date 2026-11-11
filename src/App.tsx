@@ -181,7 +181,8 @@ function App() {
     rafId = requestAnimationFrame(raf)
 
     lenis.on('scroll', (e: { scroll: number; progress: number }) => {
-      setHeaderScrolled(e.scroll > 32)
+      const scrolled = e.scroll > 32
+      setHeaderScrolled((prev) => (prev !== scrolled ? scrolled : prev))
       if (progressRef.current) {
         progressRef.current.style.transform = `scaleX(${e.progress})`
       }
@@ -284,7 +285,9 @@ function App() {
     })
     let frameId = 0
     const updateProgress = () => {
-      setHeaderScrolled(window.scrollY > 32)
+      if (lenisRef.current) return
+      const scrolled = window.scrollY > 32
+      setHeaderScrolled((prev) => (prev !== scrolled ? scrolled : prev))
       cancelAnimationFrame(frameId)
       frameId = requestAnimationFrame(() => {
         const range = document.documentElement.scrollHeight - window.innerHeight
@@ -397,8 +400,9 @@ function App() {
     const lenis = lenisRef.current
     if (lenis) {
       lenis.on('scroll', scheduleSync)
+    } else {
+      window.addEventListener('scroll', scheduleSync, { passive: true })
     }
-    window.addEventListener('scroll', scheduleSync, { passive: true })
     window.addEventListener('resize', refresh)
     const observer = new ResizeObserver(refresh)
     observer.observe(viewport)
@@ -406,8 +410,9 @@ function App() {
     return () => {
       if (lenis) {
         lenis.off('scroll', scheduleSync)
+      } else {
+        window.removeEventListener('scroll', scheduleSync)
       }
-      window.removeEventListener('scroll', scheduleSync)
       window.removeEventListener('resize', refresh)
       cancelAnimationFrame(frame)
       observer.disconnect()

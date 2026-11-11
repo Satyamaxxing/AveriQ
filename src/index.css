@@ -449,8 +449,7 @@ select:focus-visible {
   position: absolute;
   inset: 8% -7% 2%;
   border-radius: 50%;
-  background: radial-gradient(ellipse, #ccff0014, transparent 65%);
-  filter: blur(14px)
+  background: radial-gradient(ellipse, rgba(204, 255, 0, 0.08) 0%, rgba(204, 255, 0, 0.02) 40%, transparent 68%);
 }
 
 .visual-orbit {
@@ -2362,15 +2361,15 @@ select:focus-visible {
 
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(26px);
-  filter: blur(2px);
-  transition: opacity .8s cubic-bezier(.2, .7, .2, 1), transform .8s cubic-bezier(.2, .7, .2, 1), filter .8s ease
+  transform: translate3d(0, 26px, 0);
+  will-change: opacity, transform;
+  backface-visibility: hidden;
+  transition: opacity .7s cubic-bezier(.16, 1, .3, 1), transform .7s cubic-bezier(.16, 1, .3, 1)
 }
 
 .scroll-reveal.is-visible {
   opacity: 1;
-  transform: translateY(0);
-  filter: blur(0)
+  transform: translate3d(0, 0, 0);
 }
 
 .solution-card.scroll-reveal:nth-child(2),
@@ -5110,8 +5109,7 @@ select:focus-visible {
 
 .hero-visual:before {
   inset: -3% -12% -2%;
-  background: radial-gradient(ellipse, #ccff0026 0%, #a8d70012 42%, transparent 72%);
-  filter: blur(20px)
+  background: radial-gradient(ellipse, rgba(204, 255, 0, 0.12) 0%, rgba(168, 215, 0, 0.04) 42%, transparent 72%);
 }
 
 .visual-orbit {
@@ -7650,6 +7648,7 @@ select:focus-visible {
   justify-content: center !important;
   text-align: center !important;
   width: 100% !important;
+  max-width: 960px !important;
   margin-inline: auto !important;
 }
 
@@ -7670,6 +7669,15 @@ select:focus-visible {
 .workflow-section .workflow-intro h2 {
   text-align: center !important;
   margin-inline: auto !important;
+  width: 100% !important;
+  align-self: center !important;
+}
+
+.tools-section .tools-heading h2 span,
+.capabilities-section .section-heading h2 span,
+.workflow-section .workflow-intro h2 em {
+  display: inline-block !important;
+  text-align: center !important;
 }
 
 /* ==========================================================================
@@ -7692,10 +7700,9 @@ select:focus-visible {
   width: 900px;
   max-width: 90vw;
   height: 500px;
-  background: radial-gradient(ellipse at center, rgba(202, 255, 0, 0.08) 0%, rgba(202, 255, 0, 0.02) 40%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(202, 255, 0, 0.07) 0%, rgba(202, 255, 0, 0.035) 25%, rgba(202, 255, 0, 0.012) 50%, rgba(202, 255, 0, 0.003) 65%, transparent 75%);
   pointer-events: none;
   z-index: 0;
-  filter: blur(40px);
 }
 
 .comparison-shell {
@@ -7766,7 +7773,7 @@ select:focus-visible {
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
-  will-change: transform, opacity, filter;
+  will-change: transform, opacity;
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -7779,21 +7786,20 @@ select:focus-visible {
 }
 
 /* SCROLL REVEAL:
-   Initially blank space (opacity: 0, scale 1.24 slightly enlarged).
+   Initially blank space (opacity: 0, scale 1.12 slightly enlarged).
    When user reaches this section, zooms OUT into place (scale 1.0, opacity 1).
    Once it enters, it stays permanently in position, even if user scrolls back up! */
 .comparison-section .comparison-card.scroll-reveal {
   opacity: 0;
-  transform: translate3d(0, 20px, 0) scale(1.24);
+  transform: translate3d(0, 24px, 0) scale(1.12);
   transform-origin: center center;
-  filter: blur(5px);
-  transition: opacity 0.65s ease, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), filter 0.65s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  will-change: transform, opacity;
+  transition: opacity 0.65s ease, transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .comparison-section .comparison-card.scroll-reveal.is-visible {
   opacity: 1;
   transform: translate3d(0, 0, 0) scale(1);
-  filter: blur(0);
 }
 
 .comparison-section .comparison-card.scroll-reveal.decides {
@@ -8093,7 +8099,6 @@ select:focus-visible {
   .comparison-section .comparison-card.scroll-reveal.is-visible {
     opacity: 1 !important;
     transform: none !important;
-    filter: none !important;
     transition: none !important;
   }
 
