@@ -160,8 +160,8 @@ function App() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 1.15,
+      easing: (t) => 1 - Math.pow(1 - t, 3),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
@@ -180,6 +180,13 @@ function App() {
     }
     rafId = requestAnimationFrame(raf)
 
+    lenis.on('scroll', (e: { scroll: number; progress: number }) => {
+      setHeaderScrolled(e.scroll > 32)
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleX(${e.progress})`
+      }
+    })
+
     const handleAnchorClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest('a')
       if (!anchor) return
@@ -188,11 +195,11 @@ function App() {
         e.preventDefault()
         setMenuOpen(false)
         if (href === '#top' || href === '#') {
-          lenis.scrollTo(0, { duration: 1.2 })
+          lenis.scrollTo(0, { duration: 1.15 })
         } else {
           const target = document.querySelector(href)
           if (target) {
-            lenis.scrollTo(target as HTMLElement, { offset: -70, duration: 1.2 })
+            lenis.scrollTo(target as HTMLElement, { offset: -70, duration: 1.15 })
           }
         }
       }
@@ -301,22 +308,7 @@ function App() {
   }, [])
 
   const closeMenu = () => { if (!menuOpen || menuClosing) return; setMenuClosing(true); window.setTimeout(() => { setMenuOpen(false); setMenuClosing(false) }, 280) }
-  const updateSolutionPosition = (element: HTMLDivElement) => {
-    const track = element.querySelector<HTMLElement>('.solution-track')
-    const points = track?.querySelectorAll<HTMLElement>('.solution-point')
-    if (!track || !points?.length) return
-    const viewportCenter = element.getBoundingClientRect().left + element.clientWidth / 2
-    let closest = 0
-    let closestDistance = Number.POSITIVE_INFINITY
-    points.forEach((point, index) => {
-      const marker = point.querySelector<HTMLElement>('.solution-point-marker')
-      if (!marker) return
-      const pointCenter = marker.getBoundingClientRect().left + marker.offsetWidth / 2
-      const distance = Math.abs(pointCenter - viewportCenter)
-      if (distance < closestDistance) { closestDistance = distance; closest = index }
-    })
-    setActiveSolution((current) => current === closest ? current : closest)
-  }
+
   const scrollSolutions = (direction: number) => {
     const element = solutionTrackRef.current
     if (!element) return
@@ -340,47 +332,81 @@ function App() {
     const track = viewport?.querySelector<HTMLElement>('.solution-track')
     if (!stage || !viewport || !track) return
     let travel = 0
+    let stickyTop = 0
+    let viewportWidth = 0
+    let pointData: { point: HTMLElement; markerLeft: number; lineArrival: number }[] = []
     let frame = 0
+
     const measure = () => {
       travel = Math.max(0, track.scrollWidth - viewport.clientWidth)
+      viewportWidth = viewport.clientWidth
+      stickyTop = Number.parseFloat(getComputedStyle(viewport.parentElement as HTMLElement).top) || 0
       const timelineHeight = viewport.parentElement?.offsetHeight ?? viewport.offsetHeight
       stage.style.height = `${timelineHeight + travel}px`
+
+      const trackRect = track.getBoundingClientRect()
+      pointData = Array.from(track.querySelectorAll<HTMLElement>('.solution-point')).map((point) => {
+        const marker = point.querySelector<HTMLElement>('.solution-point-marker')
+        const markerLeft = marker ? marker.getBoundingClientRect().left + marker.offsetWidth / 2 - trackRect.left : 0
+        return {
+          point,
+          markerLeft,
+          lineArrival: track.scrollWidth ? markerLeft / track.scrollWidth : 0,
+        }
+      })
     }
+
     const sync = () => {
-      const stickyTop = Number.parseFloat(getComputedStyle(viewport.parentElement as HTMLElement).top) || 0
       const stageTop = stage.getBoundingClientRect().top
       const progress = travel > 0 ? Math.max(0, Math.min(1, (stickyTop - stageTop) / travel)) : 0
       track.style.transform = `translate3d(${-travel * progress}px, 0, 0)`
       const railStart = travel * progress
-      const railDistance = viewport.clientWidth * progress
+      const railDistance = viewportWidth * progress
       if (solutionRailProgressRef.current) {
         solutionRailProgressRef.current.style.left = `${railStart}px`
         solutionRailProgressRef.current.style.width = `${railDistance}px`
       }
       if (solutionRailHeadRef.current) solutionRailHeadRef.current.style.left = `${railStart + railDistance}px`
-      const trackLeft = track.getBoundingClientRect().left
-      track.querySelectorAll<HTMLElement>('.solution-point').forEach((point) => {
-        const marker = point.querySelector<HTMLElement>('.solution-point-marker')
-        if (!marker) return
-        const markerLeft = marker.getBoundingClientRect().left + marker.offsetWidth / 2 - trackLeft
-        const lineArrival = markerLeft / track.scrollWidth
+
+      const currentTrackX = -travel * progress
+      const viewportCenter = viewportWidth / 2
+      let closest = 0
+      let closestDist = Number.POSITIVE_INFINITY
+
+      pointData.forEach(({ point, markerLeft, lineArrival }, index) => {
         const drawProgress = Math.max(0, Math.min(1, (progress - lineArrival + 0.04) / 0.04))
         point.style.setProperty('--connector-progress', drawProgress.toFixed(3))
+
+        const markerScreenX = markerLeft + currentTrackX
+        const dist = Math.abs(markerScreenX - viewportCenter)
+        if (dist < closestDist) {
+          closestDist = dist
+          closest = index
+        }
       })
-      updateSolutionPosition(viewport)
+      setActiveSolution((current) => (current === closest ? current : closest))
     }
+
     const scheduleSync = () => {
       if (frame) return
       frame = requestAnimationFrame(() => { frame = 0; sync() })
     }
     const refresh = () => { measure(); scheduleSync() }
     refresh()
+
+    const lenis = lenisRef.current
+    if (lenis) {
+      lenis.on('scroll', scheduleSync)
+    }
     window.addEventListener('scroll', scheduleSync, { passive: true })
     window.addEventListener('resize', refresh)
     const observer = new ResizeObserver(refresh)
     observer.observe(viewport)
     observer.observe(track)
     return () => {
+      if (lenis) {
+        lenis.off('scroll', scheduleSync)
+      }
       window.removeEventListener('scroll', scheduleSync)
       window.removeEventListener('resize', refresh)
       cancelAnimationFrame(frame)

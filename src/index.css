@@ -54,6 +54,27 @@ html.lenis {
   pointer-events: none;
 }
 
+/* BUTTERY SMOOTH SCROLL HARDWARE ACCELERATION */
+.solution-track {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+}
+
+.solution-rail-progress,
+.solution-rail-head {
+  will-change: left, width;
+}
+
+.comparison-card {
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.motion-marquee .marquee-track {
+  will-change: transform;
+}
+
 body {
   margin: 0;
   min-width: 320px;
