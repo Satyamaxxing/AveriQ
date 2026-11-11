@@ -243,7 +243,7 @@ function App() {
 
     const supportsGlow = window.matchMedia('(hover: hover) and (pointer: fine)').matches
     const magneticTargets = supportsGlow
-      ? [...document.querySelectorAll<HTMLElement>('.nav-cta, .hero-actions .button')]
+      ? Array.from(document.querySelectorAll<HTMLElement>('.nav-cta, .hero-actions .button'))
       : []
     const moveMagneticTarget = (event: PointerEvent) => {
       const target = event.currentTarget as HTMLElement
