@@ -496,7 +496,7 @@ function App() {
         <section className="comparison-section" id="comparison">
           <div className="comparison-ambient-glow" aria-hidden="true" />
           <div className="section-shell comparison-shell">
-            <div className="section-heading comparison-header">
+            <div className="comparison-header">
               <span className="comparison-eyebrow">
                 <span className="eyebrow-pip" />
                 TWO SIDES OF ONE CLEAR PROCESS
